@@ -4,7 +4,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from astrostacker.img.scale import lingray
 from astrostacker.img.debayer import debayer
-from astrostacker.img.debayer import debayer2
+from astrostacker.img.debayer import debayer
 
 
 # Frame for displaying images. Has 2 scrollbars.
@@ -55,7 +55,7 @@ class ImageView(tk.Frame):
     def show_image(self, data, debayer_data, bayer_mask):
         scale = 255
         if debayer_data:
-            data = debayer2(data, bayer_mask)
+            data = debayer(data, bayer_mask)
             data[:, :, 0] = lingray(data[:, :, 0], max=scale)
             data[:, :, 1] = lingray(data[:, :, 1], max=scale)
             data[:, :, 2] = lingray(data[:, :, 2], max=scale)

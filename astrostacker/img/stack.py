@@ -3,7 +3,6 @@ import numpy as np
 from astropy.io import fits as pyfits
 from astrostacker.img.shift import shift
 from astrostacker.img.debayer import debayer
-from astrostacker.img.debayer import debayer2
 from astrostacker.img.debayer import RGGB
 import astroalign as aa
 
@@ -52,7 +51,6 @@ def stack(filenames, debayer_result=False, mask=RGGB, ref_frame_idx=0):
     result = result.astype(np.uint16)
     if debayer_result:
         logger.info('Debayering stack.')
-        # result = debayer(result)
-        result = debayer2(result, mask)
+        result = debayer(result, mask)
         logger.info('Stack debayered.')
     return result

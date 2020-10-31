@@ -50,8 +50,9 @@ class ImageList(tk.Frame):
         # control panel
         # 2 rows and 4 columns
         # Label | button add images | label | button clear images | checkbox debayer
-        # checkbox reference frame
+        # checkbox reference frame | label | option menu bayer mask
         ctrl = self.control_panel
+
         ctrl.lblSelectFitsImages = tk.Label(ctrl, text='Add FITS images:')
         ctrl.lblSelectFitsImages.grid(row=0, column=0, padx=5, pady=5)
 
@@ -67,16 +68,18 @@ class ImageList(tk.Frame):
         ctrl.cbDebayer = tk.Checkbutton(ctrl, variable=self.var_debayer, text='Debayer displayed images')
         ctrl.cbDebayer.grid(row=0, column=4, padx=5, pady=5)
 
-        ctrl.cbRefFrame = tk.Checkbutton(ctrl, variable=self.var_ref_frame,
+        ctrl.row1 = tk.Frame(ctrl)
+        ctrl.row1.grid(row=1, column=0, columnspan=5, sticky='w')
+        ctrl.cbRefFrame = tk.Checkbutton(ctrl.row1, variable=self.var_ref_frame,
                                          command=self.__on_cb_ref_frame_changed, text='Reference frame')
-        ctrl.cbRefFrame.grid(row=1, column=0, padx=5, pady=5)
+        ctrl.cbRefFrame.grid(row=0, column=0, padx=5, pady=5)
 
-        ctrl.lblBayerMask = tk.Label(ctrl, text='Bayer mask:')
-        ctrl.lblBayerMask.grid(row=1, column=1, padx=5, pady=5)
+        ctrl.lblBayerMask = tk.Label(ctrl.row1, text='Bayer mask:')
+        ctrl.lblBayerMask.grid(row=0, column=1, padx=5, pady=5)
 
-        ctrl.omBayerMask = tk.OptionMenu(ctrl, self.var_bayer_mask, RGGB, BGGR, GBRG, GRBG,
+        ctrl.omBayerMask = tk.OptionMenu(ctrl.row1, self.var_bayer_mask, RGGB, BGGR, GBRG, GRBG,
                                          command=self.__cmd_bayer_mask_changed)
-        ctrl.omBayerMask.grid(row=1, column=2, padx=5, pady=5)
+        ctrl.omBayerMask.grid(row=0, column=2, padx=5, pady=5)
 
         # image list
         # 2 rows and 2 columns
