@@ -1,0 +1,13 @@
+name: astrostacker
+channels:
+  - defaults
+dependencies:
+  - astropy
+  - scikit-image
+  - opencv
+  - pillow
+  - matplotlib
+  - libtiff
+  - pip
+  - pip:
+    - astroalign
