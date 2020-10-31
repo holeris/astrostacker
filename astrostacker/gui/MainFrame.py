@@ -7,6 +7,7 @@ from astrostacker.gui.ImageList import ImageList
 from astrostacker.gui.ImageView import ImageView
 from astrostacker.gui.StackingControlPanel import StackingControlPanel
 from astrostacker.logging.loghandler import LogHandler
+from astrostacker.img.debayer import RGGB
 
 logger = logging.getLogger()
 
@@ -26,7 +27,9 @@ class MainFrame(tk.Frame):
 
         self.stackingPanel = StackingControlPanel(self)
         self.stackingPanel.grid(row=1, column=0, sticky='ws')
+        self.stackingPanel.bayer_mask = RGGB
         self.imageList.event_on_change_filenames = self.stackingPanel.set_filenames
+        self.imageList.event_on_change_bayer_mask = self.stackingPanel.set_bayer_mask
 
         self.scrolledText = ScrolledText(self, width=50, height=10)
         self.scrolledText.grid(row=2, column=0, columnspan=2, sticky='wes')
@@ -44,10 +47,10 @@ class MainFrame(tk.Frame):
         self.after(100, self.poll_log_queue)
 
     # loads and displays selected image
-    def display_image(self, filename, debayer=False):
+    def display_image(self, filename, debayer=False, bayer_mask=RGGB):
         img = pyfits.open(filename)
         data = img[0].data
-        self.imageView.show_image(data, debayer)
+        self.imageView.show_image(data, debayer, bayer_mask)
 
     # displays log message
     def display_message(self, record):

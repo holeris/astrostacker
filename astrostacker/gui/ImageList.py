@@ -3,6 +3,7 @@ import tkinter as tk
 import tkinter.filedialog
 from tkinter import ttk
 import tkinter.font as tkfont
+from astrostacker.img.debayer import RGGB, BGGR, GRBG, GBRG
 
 
 logger = logging.getLogger()
@@ -20,6 +21,9 @@ class ImageList(tk.Frame):
         self.var_debayer = tk.IntVar()
         # variable holding sate of reference frame checkbox
         self.var_ref_frame = tk.IntVar()
+        # variable holding value of bayer mask
+        self.var_bayer_mask = tk.StringVar()
+        self.var_bayer_mask.set(RGGB)
         # index of reference frame
         self.ref_frame_idx = 0
         # Fonts for image list
@@ -30,6 +34,7 @@ class ImageList(tk.Frame):
         # arg1: debayer flag (boolean)
         self.event_on_select = None
         self.event_on_change_filenames = None
+        self.event_on_change_bayer_mask = None
 
         self.rowconfigure(1, weight=1)
         self.columnconfigure(0, weight=1)
@@ -62,8 +67,16 @@ class ImageList(tk.Frame):
         ctrl.cbDebayer = tk.Checkbutton(ctrl, variable=self.var_debayer, text='Debayer displayed images')
         ctrl.cbDebayer.grid(row=0, column=4, padx=5, pady=5)
 
-        ctrl.cbRefFrame = tk.Checkbutton(ctrl, variable=self.var_ref_frame, command=self.__on_cb_ref_frame_changed, text='Reference frame')
+        ctrl.cbRefFrame = tk.Checkbutton(ctrl, variable=self.var_ref_frame,
+                                         command=self.__on_cb_ref_frame_changed, text='Reference frame')
         ctrl.cbRefFrame.grid(row=1, column=0, padx=5, pady=5)
+
+        ctrl.lblBayerMask = tk.Label(ctrl, text='Bayer mask:')
+        ctrl.lblBayerMask.grid(row=1, column=1, padx=5, pady=5)
+
+        ctrl.omBayerMask = tk.OptionMenu(ctrl, self.var_bayer_mask, RGGB, BGGR, GBRG, GRBG,
+                                         command=self.__cmd_bayer_mask_changed)
+        ctrl.omBayerMask.grid(row=1, column=2, padx=5, pady=5)
 
         # image list
         # 2 rows and 2 columns
@@ -153,7 +166,7 @@ class ImageList(tk.Frame):
             self.control_panel.cbRefFrame['state'] = 'normal'
         filename = self.filenames[idx]
         debayer = self.var_debayer.get()
-        self.event_on_select(filename, debayer)
+        self.event_on_select(filename, debayer, self.var_bayer_mask.get())
 
     # Event setting new reference frame when checkbox is changed
     def __on_cb_ref_frame_changed(self):
@@ -167,3 +180,7 @@ class ImageList(tk.Frame):
         self.image_list.treeview.item(idx_new, tag='REF_TAG')
         item_new = self.image_list.treeview.item(idx_new)
         self.ref_frame_idx = item_new['values'][1]
+
+    # Event setting new reference frame when checkbox is changed
+    def __cmd_bayer_mask_changed(self, event):
+        self.event_on_change_bayer_mask(self.var_bayer_mask.get())

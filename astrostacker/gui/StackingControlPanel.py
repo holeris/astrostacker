@@ -5,6 +5,7 @@ import tkinter as tk
 import tkinter.filedialog
 from astrostacker.img.stack import stack
 import tifffile as tf
+import os
 
 logger = logging.getLogger()
 
@@ -22,6 +23,8 @@ class StackingControlPanel(tk.Frame):
 
         # variable holding sate of debayer checkbox
         self.var_debayer = tk.IntVar()
+        # pattern of bayer mask
+        self.bayer_mask = None
 
         # 1 row and 2 columns
         # Debayer checkbox and stack button.
@@ -49,9 +52,14 @@ class StackingControlPanel(tk.Frame):
         self.filenames = filenames
         self.ref_frame_idx = ref_frame_idx
 
+    # Sets new value of bayer_mask
+    def set_bayer_mask(self, bayer_mask):
+        self.bayer_mask = bayer_mask
+
     # Asks for filename and starts new thread for image stacking.
     def cmd_stack(self):
         debayer = self.var_debayer.get()
+        mask = self.bayer_mask
         files_to_stack = self.filenames
         ref_frame_idx = self.ref_frame_idx
         filename = tk.filedialog.asksaveasfilename(
@@ -61,12 +69,12 @@ class StackingControlPanel(tk.Frame):
             return
         filename = self.__check_extension(filename)
 
-        thread = Thread(target=self.stack, args=(filename, files_to_stack, debayer, ref_frame_idx))
+        thread = Thread(target=self.stack, args=(filename, files_to_stack, debayer, mask, ref_frame_idx))
         thread.start()
 
     # Stacks images.
-    def stack(self, filename, files_to_stack, debayer, ref_frame_idx):
-        data = stack(files_to_stack, debayer, ref_frame_idx)
+    def stack(self, filename, files_to_stack, debayer, mask, ref_frame_idx):
+        data = stack(files_to_stack, debayer, mask, ref_frame_idx)
         if debayer:
             data = data.astype(np.uint16)
             r = data[:, :, 0]
@@ -76,6 +84,9 @@ class StackingControlPanel(tk.Frame):
         else:
             image = data
         logger.info(f'Saving {filename:s}')
+        if os.path.exists(filename):
+            os.remove(filename)
         tf.imwrite(filename, data)
+        os.utime(filename)
         logger.info(f'{filename:s} saved.')
         logger.info('Stacking completed.')
